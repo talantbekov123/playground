@@ -68,7 +68,11 @@ export class SleepController {
   @ApiBearerAuth('bearer')
   @UseGuards(AccessTokenGuard)
   @Get('stats')
-  async getStats(@Req() req: IAuthRequest): Promise<{ data: string }> {
+  async getStats(@Req() req: IAuthRequest): Promise<{
+    averageDuration: number;
+    averageStartTime: number;
+    averageEndTime: number;
+  }> {
     const stats = await this.sleepService.getStats(req.user.id);
     return stats;
   }

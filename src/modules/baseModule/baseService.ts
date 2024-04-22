@@ -1,6 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import {
+  DeleteResult,
+  FindOptionsWhere,
+  Repository,
+  UpdateResult,
+} from 'typeorm';
 import { startOfWeek, endOfWeek } from 'date-fns';
+import { UpdateSleepDTO } from '../sleep/sleep.types';
 
 @Injectable()
 export class BaseService<T> {
@@ -11,7 +17,7 @@ export class BaseService<T> {
     return await this.repository.save(entity);
   }
 
-  async delete(params: Record<string, any>): Promise<DeleteResult> {
+  async delete(params: FindOptionsWhere<T>): Promise<DeleteResult> {
     const deleteResult = await this.repository.delete(params);
     if (deleteResult.affected === 0) {
       throw new NotFoundException(
@@ -22,10 +28,13 @@ export class BaseService<T> {
   }
 
   async update(
-    params: Record<string, any>,
-    data: Partial<T>,
+    params: FindOptionsWhere<T>,
+    data: UpdateSleepDTO,
   ): Promise<UpdateResult> {
-    const updateResult = await this.repository.update(params, data as any);
+    const updateResult = await this.repository.update(
+      params,
+      data as Record<string, any>,
+    );
     if (updateResult.affected === 0) {
       throw new NotFoundException(
         `Entity with params ${Object.keys(params)} not found`,
@@ -35,7 +44,11 @@ export class BaseService<T> {
     return updateResult;
   }
 
-  async getStats(userId: number): Promise<any> {
+  async getStats(userId: number): Promise<{
+    averageDuration: number;
+    averageStartTime: number;
+    averageEndTime: number;
+  }> {
     const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
     const endDate = endOfWeek(new Date(), { weekStartsOn: 1 });
 

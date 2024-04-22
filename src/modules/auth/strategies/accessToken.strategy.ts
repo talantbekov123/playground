@@ -14,7 +14,12 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: any) {
+  validate(payload: {
+    id: string;
+    username: string;
+    iat: number;
+    exp: number;
+  }) {
     return payload;
   }
 }
